@@ -330,6 +330,9 @@ proc edje_object_add*(parent: Evas_Object): Evas_Object {. header: "Edje.h" .}
 ######################### Elementary
 
 type Elm_Win* = Evas_Object
+type Elm_Image* = Evas_Object
+type Elm_Transit* = pointer
+type Elm_Transit_Effect* = pointer
 
 ## *
 ##  Adds a window object with standard setup
@@ -412,16 +415,73 @@ proc elm_bg_add*(parent: Evas_Object): Evas_Object {. header: "Elementary.h" .}
 proc elm_bg_color_set*(obj: Evas_Object, r: int, g: int, b: int) {. header: "Elementary.h" .}
 
 ## Create image
-proc elm_image_add*(parent: Evas_Object): Evas_Object {. header: "Elementary.h" .}
+proc elm_image_add*(parent: Evas_Object): Elm_Image {. header: "Elementary.h" .}
+
+## Get the underlying Evas_Object for an image object
+proc elm_image_object_get*(obj: Elm_Image): Evas_Object {. header: "Elementary.h" .}
 
 ## Set the image file's source
-proc elm_image_file_set*(obj: Evas_Object, file: cstring, group: cstring): bool {. header: "Elementary.h" .}
+proc elm_image_file_set*(obj: Elm_Image, file: cstring, group: cstring): bool {. header: "Elementary.h" .}
 
 ## Get resources directory
 proc elm_app_data_dir_get*(): cstring {. header: "Elementary.h" .}
 
 ## Enable or disable preloading of the image
-proc elm_image_preload_disabled_set*(imgView: Evas_Object, disabled: bool) {. header: "Elementary.h" .}
+proc elm_image_preload_disabled_set*(imgView: Elm_Image, disabled: bool) {. header: "Elementary.h" .}
 
 ## Set the background image file's source
 proc elm_bg_file_set*(obj: Evas_Object, file: cstring, group: cstring): bool {. header: "Elementary.h" .}
+
+## Create transition animation
+proc elm_transit_add*(): Elm_Transit {. header: "Elementary.h" .}
+
+## Add an object to the transit
+proc elm_transit_object_add*(transit: Elm_Transit, obj: Evas_Object) {. header: "Elementary.h" .}
+
+## Execute the transition
+proc elm_transit_go*(transit: Elm_Transit) {. header: "Elementary.h" .}
+
+## Execute the transition after some time
+proc elm_transit_go_in*(transit: Elm_Transit, delay: float) {. header: "Elementary.h" .}
+
+## Set the duration
+proc elm_transit_duration_set*(transit: Elm_Transit, duration: cdouble) {. header: "Elementary.h" .}
+
+## Transition effect
+proc elm_transit_effect_translation_add*(transit: Elm_Transit, from_dx: int, from_dy: int, to_dx: int, to_dy: int): Elm_Transit_Effect {. header: "Elementary.h" .}
+
+type Elm_Transit_Del_Cb* = proc(userData: pointer, transit: Elm_Transit) {.cdecl.}
+
+## Add a callback which is called when the transit is deleted
+proc elm_transit_del_cb_set*(transit: Elm_Transit, callback: Elm_Transit_Del_Cb, userData: pointer) {. header: "Elementary.h" .}
+
+## Enable/disable keeping up the objects states. If it is not kept, the objects states will be reset when transition ends.
+proc elm_transit_objects_final_state_keep_set*(transit: Elm_Transit, on: bool) {. header: "Elementary.h" .}
+
+## Delete a running transit before it completes. This is effectively a "cancel". The delete callback will still be called.
+proc elm_transit_del*(transit: Elm_Transit) {. header: "Elementary.h" .}
+
+type Elm_Transit_Tween_Mode* = enum
+    ELM_TRANSIT_TWEEN_MODE_LINEAR,          # /**< Constant speed */
+    ELM_TRANSIT_TWEEN_MODE_SINUSOIDAL,      #  /**< Starts slow, increase speed
+                                            #    over time, then decrease again
+                                            #     and stop slowly, v1 being a power factor */
+    ELM_TRANSIT_TWEEN_MODE_DECELERATE,      #  /**< Starts fast and decrease
+                                            #     speed over time, v1 being a power factor */
+    ELM_TRANSIT_TWEEN_MODE_ACCELERATE,      #  /**< Starts slow and increase speed
+                                            #     over time, v1 being a power factor */
+    ELM_TRANSIT_TWEEN_MODE_DIVISOR_INTERP,  #  /**< Start at gradient v1,
+                                            #             interpolated via power of v2 curve */
+    ELM_TRANSIT_TWEEN_MODE_BOUNCE,          #  /**< Start at 0.0 then "drop" like a ball
+                                            #    bouncing to the ground at 1.0, and
+                                            #     bounce v2 times, with decay factor of v1 */
+    ELM_TRANSIT_TWEEN_MODE_SPRING,          #  /**< Start at 0.0 then "wobble" like a spring
+                                            #    rest position 1.0, and wobble v2 times,
+                                            #    with decay factor of v1 */
+    ELM_TRANSIT_TWEEN_MODE_BEZIER_CURVE     #  /**< @since 1.13
+                                            #      Follow the cubic-bezier curve
+                                            #      calculated with the control points
+                                            #      (x1, y1), (x2, y2) */
+
+## Set tween mode
+proc elm_transit_tween_mode_set*(transit: Elm_Transit, tween_mode: Elm_Transit_Tween_Mode) {. header: "Elementary.h" .}

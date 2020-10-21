@@ -38,7 +38,7 @@ method onDestroy*(this: Label) {. private .} =
     procCall this.View.onDestroy()
 
     # Destroy it
-    evas_free(this.labelObject)
+    evas_object_del(this.labelObject)
     this.labelObject = nil
 
 
@@ -65,7 +65,6 @@ method onShow*(this: Label) =
 
     # Show objects
     evas_object_show(this.labelObject)
-    dlog "[Label] Showing..."
 
 
 # Called on hide
@@ -74,4 +73,3 @@ method onHide*(this: Label) =
 
     # Show objects
     evas_object_hide(this.labelObject)
-    dlog "[Label] Hiding..."

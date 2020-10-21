@@ -4,6 +4,7 @@ import ../types
 import ../dlog
 import strformat
 import events
+import AnimationInfo
 
 # Autoresize flags
 type ViewAutoresizingFlags* = enum
@@ -97,8 +98,10 @@ method destroyEvasObject*(this: View) {. base, private .} =
     this.onDestroy()
 
     # Destroy it
+    evas_object_del(this.evasBackground)
     evas_object_del(this.evasObject)
     this.evasObject = nil
+    this.evasBackground = nil
 
 
 ## @chainable Initialize the view. This must be called first.
@@ -312,3 +315,10 @@ method add*(this: View, child: View) {.base.} =
     # Construct it's evas object
     child.refreshEvas()
     
+
+## Called when an animation starts. Subclasses should use this opportunity to register their evas objects.
+method onAnimationStart*(this: View, animationInfo: AnimationInfo) {.base.} =
+
+    # Register evas objects
+    animationInfo.evasObjects.add(this.evasObject)
+    animationInfo.evasObjects.add(this.evasBackground)

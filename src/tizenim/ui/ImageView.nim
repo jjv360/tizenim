@@ -1,4 +1,5 @@
 import View
+import AnimationInfo
 import ../native
 import ../templates
 import ../dlog
@@ -42,6 +43,7 @@ method setImageFile*(this: ImageView, filename: string) {. base .} =
     let success = elm_image_file_set(this.imageObject, filename, nil)
     if success:
         dlog "[ImageView] Successfully set image: " & filename
+        return
 
     # Failed!
     dlog "[ImageView] Unable to set image: " & filename
@@ -56,6 +58,14 @@ method onCreate*(this: ImageView) {. private .} =
 
     # Restore properties
     if this.imageFile != "": this.setImageFile(this.imageFile)
+
+
+method onDestroy*(this: ImageView) {. private .} =
+    procCall this.View.onDestroy()
+
+    # Destroy it
+    evas_object_del(this.imageObject)
+    this.imageObject = nil
 
 
 method layoutSubviews*(this: ImageView, oldWidth: float, oldHeight: float) {. private .} =
@@ -81,3 +91,11 @@ method onHide*(this: ImageView) =
 
     # Show objects
     evas_object_hide(this.imageObject)
+
+
+# Called on animation start
+method onAnimationStart*(this: ImageView, animationInfo: AnimationInfo) =
+    procCall this.View.onAnimationStart(animationInfo)
+
+    # Add our evas object
+    animationInfo.evasObjects.add(this.imageObject)

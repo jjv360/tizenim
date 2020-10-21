@@ -67,9 +67,6 @@ method init*(this: Window): Window {. base .} =
     # evas_object_size_hint_weight_set(this.evasConformant, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND)
     # evas_object_show(this.evasConformant)
 
-    # Create the evas container now
-    procCall this.View.initEvasObject(this.evasWindow)
-
     # Add a resize listener
     evas_object_event_callback_add(this.evasWindow, EVAS_CALLBACK_RESIZE, proc (this: pointer, e: Evas, sourceObject: Evas_Object, eventInfo: pointer) {.cdecl.} = cast[Window](this).onWindowResized(), cast[pointer](this))
 
@@ -78,8 +75,11 @@ method init*(this: Window): Window {. base .} =
     discard eext_rotary_object_event_callback_add(this.evasWindow, proc(this: pointer, src: Evas_Object, info: ref Eext_Rotary_Event_Info): bool {.cdecl.} = cast[Window](this).onRotaryEvent(info.direction == EEXT_ROTARY_DIRECTION_CLOCKWISE), cast[pointer](this))
     eext_rotary_object_event_activated_set(this.evasWindow, true)
 
+    # Create the evas container now
+    procCall this.View.initEvasObject(this.evasWindow)
+
     # Call hooks
-    this.onCreate()
+    # this.onCreate()
 
     # Done
     return this
