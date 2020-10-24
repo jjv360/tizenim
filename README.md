@@ -4,7 +4,7 @@
 
 This tool allows you to write Tizen watch apps for the Samsung Galaxy watches using Nim.
 
-> Make sure the Samsung Certificate Extension and Samsung Wearable Extension are installed, and that you've created a **Samsung** certificate in the Certificate Manager! It must be a **Samsung** certificate.
+> Make sure your Tizen environment is set up correctly for building native applications. There are some guides [here](https://developer.tizen.org/dev-guide/training/native-app/en/wearable_native/index.html).
 
 ## Installation
 

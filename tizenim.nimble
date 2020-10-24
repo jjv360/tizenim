@@ -12,4 +12,5 @@ bin           = @["tizenim"]
 # Dependencies
 
 requires "nim >= 1.4.0"
+requires "classes >= 0.1.0"
 requires "docopt"

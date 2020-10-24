@@ -462,23 +462,23 @@ proc elm_transit_objects_final_state_keep_set*(transit: Elm_Transit, on: bool) {
 proc elm_transit_del*(transit: Elm_Transit) {. header: "Elementary.h" .}
 
 type Elm_Transit_Tween_Mode* = enum
-    ELM_TRANSIT_TWEEN_MODE_LINEAR,          # /**< Constant speed */
-    ELM_TRANSIT_TWEEN_MODE_SINUSOIDAL,      #  /**< Starts slow, increase speed
+    AnimationTweenModeLinear,          # /**< Constant speed */
+    AnimationTweenModeSinusoidal,      #  /**< Starts slow, increase speed
                                             #    over time, then decrease again
                                             #     and stop slowly, v1 being a power factor */
-    ELM_TRANSIT_TWEEN_MODE_DECELERATE,      #  /**< Starts fast and decrease
+    AnimationTweenModeDecelerate,      #  /**< Starts fast and decrease
                                             #     speed over time, v1 being a power factor */
-    ELM_TRANSIT_TWEEN_MODE_ACCELERATE,      #  /**< Starts slow and increase speed
+    AnimationTweenModeAccelerate,      #  /**< Starts slow and increase speed
                                             #     over time, v1 being a power factor */
-    ELM_TRANSIT_TWEEN_MODE_DIVISOR_INTERP,  #  /**< Start at gradient v1,
+    AnimationTweenModeDivisorInterp,  #  /**< Start at gradient v1,
                                             #             interpolated via power of v2 curve */
-    ELM_TRANSIT_TWEEN_MODE_BOUNCE,          #  /**< Start at 0.0 then "drop" like a ball
+    AnimationTweenModeBounce,          #  /**< Start at 0.0 then "drop" like a ball
                                             #    bouncing to the ground at 1.0, and
                                             #     bounce v2 times, with decay factor of v1 */
-    ELM_TRANSIT_TWEEN_MODE_SPRING,          #  /**< Start at 0.0 then "wobble" like a spring
+    AnimationTweenModeSpring,          #  /**< Start at 0.0 then "wobble" like a spring
                                             #    rest position 1.0, and wobble v2 times,
                                             #    with decay factor of v1 */
-    ELM_TRANSIT_TWEEN_MODE_BEZIER_CURVE     #  /**< @since 1.13
+    AnimationTweenModeBezierCurve     #  /**< @since 1.13
                                             #      Follow the cubic-bezier curve
                                             #      calculated with the control points
                                             #      (x1, y1), (x2, y2) */

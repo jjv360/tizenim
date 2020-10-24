@@ -5,97 +5,88 @@ import ../templates
 import ../dlog
 import strformat
 import os
+import classes
 
 ## An Image view allows you to display an image on the screen.
-type ImageView* = ref object of View
+class ImageView of View:
 
     ## Image object
-    imageObject: Evas_Object
+    var imageObject: Evas_Object
 
     ## Image file path
-    imageFile: string
+    var imageFile: string
 
 
-# Constructor
-method init*(this: ImageView): ImageView {.base.} =
-    discard procCall this.View.init()
+    # Set the image to the specified file URL
+    method setImageFile(filename: string) =
 
-    # Default values
-    
-    # Done
-    return this
+        # Check if file exists
+        if not fileExists(filename):
+            dlog "[ImageView] File not found: " & filename
+            return
 
+        # Stop if not loaded yet
+        this.imageFile = filename
+        if this.imageObject == nil:
+            return
 
-# Set the image to the specified file URL
-method setImageFile*(this: ImageView, filename: string) {. base .} =
+        # Set it
+        let success = elm_image_file_set(this.imageObject, filename, nil)
+        if success:
+            dlog "[ImageView] Successfully set image: " & filename
+            return
 
-    # Check if file exists
-    if not fileExists(filename):
-        dlog "[ImageView] File not found: " & filename
-        return
-
-    # Stop if not loaded yet
-    this.imageFile = filename
-    if this.imageObject == nil:
-        return
-
-    # Set it
-    let success = elm_image_file_set(this.imageObject, filename, nil)
-    if success:
-        dlog "[ImageView] Successfully set image: " & filename
-        return
-
-    # Failed!
-    dlog "[ImageView] Unable to set image: " & filename
+        # Failed!
+        dlog "[ImageView] Unable to set image: " & filename
 
 
-# Called when the view is created
-method onCreate*(this: ImageView) {. private .} =
-    procCall this.View.onCreate()
+    # Called when the view is created
+    method onCreate() =
+        super.onCreate()
 
-    # Create a generic evas container object
-    this.imageObject = elm_image_add(this.evasObject)
+        # Create a generic evas container object
+        this.imageObject = elm_image_add(this.evasObject)
 
-    # Restore properties
-    if this.imageFile != "": this.setImageFile(this.imageFile)
+        # Restore properties
+        if this.imageFile != "": this.setImageFile(this.imageFile)
 
+    # Called when the view is destroyed
+    method onDestroy() =
+        super.onDestroy()
 
-method onDestroy*(this: ImageView) {. private .} =
-    procCall this.View.onDestroy()
-
-    # Destroy it
-    evas_object_del(this.imageObject)
-    this.imageObject = nil
-
-
-method layoutSubviews*(this: ImageView, oldWidth: float, oldHeight: float) {. private .} =
-
-    # Set size of label view
-    if this.imageObject != nil:
-        evas_object_move(this.imageObject, this.frame.position.x.toInt(), this.frame.position.y.toInt())
-        evas_object_resize(this.imageObject, this.frame.size.width.toInt(), this.frame.size.height.toInt())
-        dlog fmt"[ImageView] Moving to {this.frame.position.x.toInt()} {this.frame.position.y.toInt()}"
+        # Destroy it
+        evas_object_del(this.imageObject)
+        this.imageObject = nil
 
 
-# Called on show
-method onShow*(this: ImageView) =
-    procCall this.View.onShow()
+    method layoutSubviews(oldWidth: float, oldHeight: float) =
 
-    # Show objects
-    evas_object_show(this.imageObject)
-
-
-# Called on hide
-method onHide*(this: ImageView) =
-    procCall this.View.onHide()
-
-    # Show objects
-    evas_object_hide(this.imageObject)
+        # Set size of label view
+        if this.imageObject != nil:
+            evas_object_move(this.imageObject, this.frame.position.x.toInt(), this.frame.position.y.toInt())
+            evas_object_resize(this.imageObject, this.frame.size.width.toInt(), this.frame.size.height.toInt())
+            dlog fmt"[ImageView] Moving to {this.frame.position.x.toInt()} {this.frame.position.y.toInt()}"
 
 
-# Called on animation start
-method onAnimationStart*(this: ImageView, animationInfo: AnimationInfo) =
-    procCall this.View.onAnimationStart(animationInfo)
+    # Called on show
+    method onShow() =
+        super.onShow()
 
-    # Add our evas object
-    animationInfo.evasObjects.add(this.imageObject)
+        # Show objects
+        evas_object_show(this.imageObject)
+
+
+    # Called on hide
+    method onHide() =
+        super.onHide()
+
+        # Show objects
+        evas_object_hide(this.imageObject)
+
+
+    # Called on animation start
+    method onAnimationStart(animationInfo: AnimationInfo) =
+        super.onAnimationStart(animationInfo)
+
+        # Add our evas object
+        animationInfo.evasObjects.add(this.imageObject)
