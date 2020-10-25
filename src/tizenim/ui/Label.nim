@@ -4,6 +4,8 @@ import ../templates
 import ../dlog
 import strformat
 import classes
+import os
+import ../io/files
 
 ## A label is a view which can draw text to the screen.
 class Label of View:
@@ -26,6 +28,14 @@ class Label of View:
     # Override the evas object init
     method onCreate() =
         super.onCreate()
+
+        # On first ever init, check for the fonts directory
+        var hasInitedFonts {.global .} = false
+        if not hasInitedFonts:
+            hasInitedFonts = true
+
+            # Register font directory
+            evas_font_path_global_append(resourcesFolder() / "fonts")
 
         # Create a generic evas container object
         this.labelObject = elm_label_add(this.evasObject)
@@ -59,6 +69,9 @@ class Label of View:
     ## - underline : `on`, `off`, `single`, `double`
     ## - strikethrough_color
     ## - strikethrough : `on`, `off`
+    ## 
+    ## NOTE: To install custom fonts, add them to the res/fonts/ folder of your project. They must not have any spaces in the name. Eg. if you
+    ## have a res/fonts/myfont.ttf file, you can set the text to "<font=myfont>My text</font>" to use that font.
     method setText(text: string) =
 
         # Store text

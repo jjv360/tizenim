@@ -227,6 +227,8 @@ type Emile_Image_Load_Error* = enum
 ## Get last image load error
 proc evas_object_image_load_error_get*(obj: Evas_Object): Emile_Image_Load_Error {. header: "Evas.h" .}
 
+## Appends a font path to the list of font paths used by the application.
+proc evas_font_path_global_append*(path: cstring) {. header: "Evas.h" .}
 
 
 
@@ -301,6 +303,14 @@ proc ecore_evas_new*(engine_name: cstring, x: int, y: int, w: int, h: int, extra
 
 ## Init, returns how many times the lib has been initialized, 0 indicates failure.
 proc ecore_evas_init*(): int {. header: "Ecore_Evas.h" .}
+
+type Ecore_Timer* = pointer
+
+## Creates a timer to call the given function in the given period of time.
+proc ecore_timer_add*(interval: cdouble, cb: proc(userData: pointer): bool {.cdecl.}, userData: pointer): Ecore_Timer {. header: "Ecore.h" .}
+
+## Deletes the specified timer from the timer list.
+proc ecore_timer_del*(timer: Ecore_Timer): pointer {.discardable, header: "Ecore.h".}
 
 
 
