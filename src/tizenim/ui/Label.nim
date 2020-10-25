@@ -1,4 +1,4 @@
-import View
+import view
 import ../native
 import ../templates
 import ../dlog
@@ -40,11 +40,12 @@ class Label of View:
         this.labelObject = nil
 
 
-    method layoutSubviews(oldWidth: float, oldHeight: float) =
+    method layoutSubviews() =
+        super.layoutSubviews()
 
         # Set size of label view
         if this.labelObject != nil:
-            evas_object_move(this.labelObject, this.frame.position.x.toInt(), this.frame.position.y.toInt())
+            evas_object_move(this.labelObject, this.absolutePosition.x.toInt(), this.absolutePosition.y.toInt())
             evas_object_resize(this.labelObject, this.frame.size.width.toInt(), this.frame.size.height.toInt())
 
 

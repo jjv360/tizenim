@@ -1,4 +1,4 @@
-import View
+import view
 import ../native
 import ../templates
 import ../dlog
@@ -39,7 +39,7 @@ class Window of View:
         eext_rotary_object_event_activated_set(this.evasWindow, true)
 
         # Create the evas container now
-        procCall this.View.initEvasObject(this.evasWindow)
+        super.initEvasObject(this.evasWindow)
 
         # Call hooks
         # this.onCreate()

@@ -8,7 +8,7 @@ This tool allows you to write Tizen watch apps for the Samsung Galaxy watches us
 
 ## Installation
 
-To install, clone this repo and then run `nimble install`.
+To install, clone this repo and then run `nimble install`. It works well with [nim-classes](https://github.com/jjv360/nim-classes), though you don't have to use it.
 
 ## Example app
 
@@ -18,38 +18,39 @@ main = "src/App.nim"
 ```
 
 ```nim
-# Create file: src/App.nim
-import tizenim/TizenApp
-import tizenim/ui/Window
-import tizenim/ui/Label
-import tizenim/ui/View
+# Create file: src/app.nim
+import tizenim/tizenapp
+import tizenim/ui/window
+import tizenim/ui/label
+import tizenim/ui/view
+import classes
 
 
 # Create a window subclass
-type MyWindow* = ref object of Window
+class MyWindow of Window:
 
-## Called on create
-method onCreate(this: MyWindow) =
-    procCall this.Window.onCreate()
+    ## Called on create
+    method onCreate() =
+        super.onCreate()
 
-    # Create center label
-    let centerLabel = Label().init()
-    centerLabel.autoresizingFlags = { FlexibleTopMargin, FlexibleBottomMargin, FlexibleWidth }
-    centerLabel.setPosition(20, this.frame.size.height/2)
-    centerLabel.setSize(this.frame.size.width-40, 100)
-    centerLabel.setText("<align=center>Hello world</align>")
-    this.add(centerLabel)
+        # Create center label
+        let centerLabel = Label().init()
+        centerLabel.autoresizingFlags = { FlexibleTopMargin, FlexibleBottomMargin, FlexibleWidth }
+        centerLabel.setPosition(20, this.frame.size.height/2)
+        centerLabel.setSize(this.frame.size.width-40, 100)
+        centerLabel.setText("<align=center>Hello world</align>")
+        this.add(centerLabel)
 
 
 # Create an app subclass
-type MyApp* = ref object of TizenApp
+class MyApp of TizenApp:
 
-# On create
-method onCreate(this: MyApp) =
-    procCall this.TizenApp.onCreate()
-    
-    # Create and show my window
-    discard MyWindow().init()
+    # On create
+    method onCreate() =
+        super.onCreate()
+        
+        # Create and show my window
+        discard MyWindow.new()
 ```
 
 ```sh
@@ -63,7 +64,7 @@ $ tizenim launch
 # Default values for the tizen.config file:
 name = "Tizenim App"                    # Your app's name, appears in the app list
 version = "1.0.0"                       # Your app's version
-main = "src/App.nim"                    # Your app's entry point
+main = "src/app.nim"                    # Your app's entry point
 packageID = "com.example.TizenimApp"    # Your app's unique package ID
 resources = "res/"                      # All files in this folder will be installed with the app
 

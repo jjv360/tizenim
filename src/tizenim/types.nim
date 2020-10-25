@@ -27,3 +27,10 @@ const Red*          = Color(red: 1.0, green: 0.0, blue: 0.0, alpha: 1.0)
 const Green*        = Color(red: 0.0, green: 1.0, blue: 0.0, alpha: 1.0)
 const Blue*         = Color(red: 0.0, green: 0.0, blue: 1.0, alpha: 1.0)
 const Transparent*  = Color(red: 0.0, green: 0.0, blue: 0.0, alpha: 0.0)
+
+## Add two positions together
+proc `+`*(a, b: Position): Position =
+    var n = Position()
+    n.x = a.x + b.x
+    n.y = a.y + b.y
+    return n

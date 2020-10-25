@@ -1,5 +1,5 @@
-import View
-import AnimationInfo
+import view
+import animationinfo
 import ../native
 import ../templates
 import ../dlog
@@ -59,13 +59,13 @@ class ImageView of View:
         this.imageObject = nil
 
 
-    method layoutSubviews(oldWidth: float, oldHeight: float) =
+    method layoutSubviews() =
+        super.layoutSubviews()
 
         # Set size of label view
         if this.imageObject != nil:
-            evas_object_move(this.imageObject, this.frame.position.x.toInt(), this.frame.position.y.toInt())
+            evas_object_move(this.imageObject, this.absolutePosition.x.toInt(), this.absolutePosition.y.toInt())
             evas_object_resize(this.imageObject, this.frame.size.width.toInt(), this.frame.size.height.toInt())
-            dlog fmt"[ImageView] Moving to {this.frame.position.x.toInt()} {this.frame.position.y.toInt()}"
 
 
     # Called on show

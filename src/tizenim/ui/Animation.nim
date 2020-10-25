@@ -1,5 +1,5 @@
-import View
-import AnimationInfo
+import view
+import animationinfo
 import ../types
 import ../native
 import ../dlog
@@ -73,7 +73,7 @@ class AnimationContext:
 
             # Update view coords
             let view = cast[View](anim.targetView)
-            view.frame.position = anim.frame2.position
+            view.frame.position = anim.frame1.position
 
     ## Called to finalize the effects after the transit completes
     method finalizeTransit(anim: AnimationInfo, evasObject: Evas_Object, transit: Elm_Transit) =
@@ -160,15 +160,19 @@ class AnimationContext:
             # end for loop
 
     ## Add a translate animation
-    method move(view: View, oldPos: Position, newPos: Position) =
+    method move(view: View, newPos: Position) =
+
+        # Stop if not in a view
+        if view.parent == nil:
+            return
 
         # Create animation
         let anim = AnimationInfo()
         anim.context = this
         anim.targetView = view
         anim.action = AnimatePosition
-        anim.frame1.position = oldPos
-        anim.frame2.position = newPos
+        anim.frame1.position = newPos                                   # <-- Frame1 is the new relative position
+        anim.frame2.position = view.parent.absolutePosition + newPos    # <-- Frame2 is the new absolute position
         this.all.add(anim)
 
 
@@ -235,4 +239,4 @@ template onComplete*(this: AnimationContext, body: untyped) =
 
 
 ## Add a translate animation
-proc move*(view: View, x: float, y: float) = currentAnimationContext.move(view, view.frame.position, Position(x: x, y: y))
+proc move*(view: View, x: float, y: float) = currentAnimationContext.move(view, Position(x: x, y: y))

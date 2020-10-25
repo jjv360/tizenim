@@ -13,6 +13,7 @@ TizenNim - build Tizen apps in Nim.
 
 Usage:
     tizenim build
+    tizenim clean
     tizenim launch
     tizenim logs
     tizenim --help
@@ -47,6 +48,24 @@ proc startCmd(exe: string, options: varargs[string]): Process =
     return startProcess(command = resolveExeExtension(exe), workingDir = getCurrentDir(), args = options, env = nil, options = { poStdErrToStdOut })
 
 
+# Copies and replaces a file only if it has changed
+proc copyFileIfChanged(src: string, dest: string) =
+
+    # Do it if the dest file doesn't exist
+    if not fileExists(dest):
+        copyFile(src, dest)
+        return
+
+    # Compare the two
+    let strSrc = readFile(src)
+    let strDest = readFile(dest)
+    if strSrc != strDest:
+
+        # Changed, copy the file
+        removeFile(dest)
+        copyFile(src, dest)
+
+
 # Entry point
 proc run2() =
 
@@ -79,13 +98,10 @@ proc run2() =
 
     # Create temporary output directory, deleting if it exists already
     let tmpFolder = absolutePath(projectRoot / "build")
-    if dirExists(tmpFolder): removeDir(tmpFolder)
     echo ("Working directory: " & tmpFolder)
 
     # Create output folder
     let distFolder = absolutePath(projectRoot / "dist")
-    if dirExists(distFolder): removeDir(distFolder)
-    createDir(distFolder)
     echo ("Output directory: " & distFolder)
 
     # Find path to the Tizen SDK
@@ -101,14 +117,42 @@ proc run2() =
     let nimExe = nimSdkPath / "bin/nim"
     if not dirExists(nimSdkPath): raiseAssert("Could not find the Nim toolchain folder! You may have to add nimSDK to your tizen.config file.")
     echo "Nim path: " & nimSdkPath
+
+    # Clean the build folder if necessary
+    if args["clean"]:
+
+        # Remove working directories
+        if dirExists(tmpFolder): removeDir(tmpFolder)
+
     
     # Build if necessary
     if args["build"] or args["launch"]:
+
+        # Get configuration name, use Release if doing a "build", or Debug for "launch"
+        var configuration = "Debug"
+        if args["build"]:
+            configuration = "Release"
+
+        # Clean output directory
+        if dirExists(distFolder): removeDir(distFolder)
+        createDir(distFolder)
         
         # Compile to C
         echo ""
         echo " === Compiling Nim to C ==="
-        var code = runCmd(nimExe, "compileToC", "--compileOnly", "--os:linux", "--cpu:arm", "--nimcache=" & (tmpFolder / "nimcache"), "--cincludes=" & (tizenSdkPath / "platforms/tizen-4.0/wearable/rootstraps/wearable-4.0-device.core/usr/include"), "--define:TIZEN:1", "--out=" & (tmpFolder / "appbinary"), nimFile)
+        var code = runCmd(
+            nimExe, 
+            "compileToC", 
+            "--compileOnly", 
+            "--os:linux", 
+            "--cpu:arm", 
+            "--nimcache=" & (tmpFolder / "nimcache"), 
+            "--cincludes=" & (tizenSdkPath / "platforms/tizen-4.0/wearable/rootstraps/wearable-4.0-device.core/usr/include"), 
+            "--define:TIZEN:1", 
+            "--out=" & (tmpFolder / "appbinary"), 
+            if configuration == "Release": "-d:release" else: "-d:debug",
+            nimFile
+        )
         if code != 0:
             raiseAssert("Failed to compile the app.")
 
@@ -121,17 +165,18 @@ proc run2() =
         echo fmt"""Output contains {cFiles.len} C files"""
 
 
-        # Creating temporary Tizen project
-        echo ""
-        echo " === Creating Tizen project ==="
-        code = runCmd(tizenExe, "create", "native-project", "--name=tizen-project", "--profile=wearable-4.0", "--template=basic-ui", "--", tmpFolder)
-        if code != 0:
-            raiseAssert("Failed to create a Tizen project.")
+        # Create temporary Tizen project if necessary
+        if not dirExists(tmpFolder / "tizen-project"):
+            echo ""
+            echo " === Creating Tizen project ==="
+            code = runCmd(tizenExe, "create", "native-project", "--name=tizen-project", "--profile=wearable-4.0", "--template=basic-ui", "--", tmpFolder)
+            if code != 0:
+                raiseAssert("Failed to create a Tizen project.")
 
         # Copy all C files to the src folder
-        removeFile(tmpFolder / "tizen-project/src/tizen-project.c")
+        if fileExists(tmpFolder / "tizen-project/src/tizen-project.c"): removeFile(tmpFolder / "tizen-project/src/tizen-project.c")
         for file in cFiles:
-            copyFile(file, tmpFolder / "tizen-project/src" / lastPathPart(file))
+            copyFileIfChanged(file, tmpFolder / "tizen-project/src" / lastPathPart(file))
 
         # Update the tizen project's file reference
         writeFile(tmpFolder / "tizen-project/project_def.prop", fmt"""
@@ -181,19 +226,19 @@ proc run2() =
         # Compile Tizen app
         echo ""
         echo " === Compiling Tizen project ==="
-        code = runCmd(tizenExe, "build-native", "--arch=arm", "--compiler=gcc", "--configuration=Debug", "--", tmpFolder / "tizen-project")
+        code = runCmd(tizenExe, "build-native", "--arch=arm", "--compiler=gcc", "--configuration=" & configuration, "--", tmpFolder / "tizen-project")
         if code != 0:
             raiseAssert("Failed to compile the app.")
 
         # Package Tizen app
         echo ""
         echo " === Packaging Tizen project ==="
-        code = runCmd(tizenExe, "package", "--type=tpk", "--", tmpFolder / "tizen-project/Debug")
+        code = runCmd(tizenExe, "package", "--type=tpk", "--", tmpFolder / "tizen-project" / configuration)
         if code != 0:
             raiseAssert("Failed to package the app.")
 
         # Copy final output file
-        copyFile(tmpFolder / "tizen-project/Debug/org.example.tizen-project-1.0.0-arm.tpk", distFolder / "App.tpk")
+        copyFile(tmpFolder / "tizen-project" / configuration / "org.example.tizen-project-1.0.0-arm.tpk", distFolder / "App.tpk")
 
         # Done
         echo ""

@@ -485,3 +485,33 @@ type Elm_Transit_Tween_Mode* = enum
 
 ## Set tween mode
 proc elm_transit_tween_mode_set*(transit: Elm_Transit, tween_mode: Elm_Transit_Tween_Mode) {. header: "Elementary.h" .}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+########################### Hardware
+
+type haptic_device_h* = pointer
+type haptic_effect_h* = pointer
+
+## Opens a haptic-vibration device.
+proc device_haptic_open*(device_index: int, device_handle: haptic_device_h): int {. header: "<device/haptic.h>" .}
+
+## Closes a haptic-vibration device.
+proc device_haptic_close*(device_handle: haptic_device_h): int {. header: "<device/haptic.h>" .}
+
+## Vibrates during the specified time with a constant intensity.
+proc device_haptic_vibrate*(device_handle: haptic_device_h, duration: int, feedback: int, effect_handle: haptic_effect_h): int {. header: "<device/haptic.h>" .}
+
+## Stops all vibration effects which are being played.
+proc device_haptic_stop*(device_handle: haptic_device_h, effect_handle: haptic_effect_h): int {. header: "<device/haptic.h>" .}
